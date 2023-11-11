@@ -1,3 +1,7 @@
+import peasy.*;
+PeasyCam cam;
+
+PVector camPosition;
 ArrayList<PVector> coords = new ArrayList<PVector>();
 float carPositionOnPath = 10;
 float carPositionOnPathCar2 = 40;
@@ -23,11 +27,17 @@ void setup() {
   colours[0] = color(255, 0, 0);  // Red
   colours[1] = color(1, 119, 140);  // Aston Martin
   colours[2] = color(255, 165, 0); // Orange
+  
+  cam = new PeasyCam(this, width/2, height/2, 0, 1000);
+  cam.setMinimumDistance(50);
+  cam.setMaximumDistance(500);
+  camPosition = new PVector(width, height, 0);
 }
 
 void draw() {
   background(155);
   if (isDrawing) {
+    cam.beginHUD();
     drawGlowingCircle();
     stroke(10);
     drawPath3D();
@@ -41,9 +51,9 @@ void draw() {
         isDrawing = false;
        }
         println(coords.size());
-     }else if (coords.size() >= 20) {
-      drawPath3D();
      }
+     
+     cam.endHUD();
   }else if (coords.size() >= 20) {
     drawGlowingCircle();
     drawPath3D();

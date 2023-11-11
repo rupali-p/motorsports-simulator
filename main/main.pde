@@ -41,10 +41,15 @@ int tab;
 color[] colours = new color[3];
 PImage[] liveries = new PImage[3];
 
+UnsplashImage backgroundAPI;
+PImage backgroundImage;
+String userInput = "";
+String query;
+boolean enableAPIQuery = true;
+
 
 void setup() {
   size(800, 600, P3D);
-  background(155);
   noFill();
   stroke(0);
   colours[0] = color(255, 0, 0);  // Red
@@ -75,7 +80,29 @@ void setup() {
 
 void draw() {
   background(155);
-  if (isDrawing) {
+  if (enableAPIQuery && isDrawing){
+    cam.beginHUD();
+    fill(0);
+    
+    textAlign(CENTER, CENTER);
+    textSize(20);
+    text("Please type your destination and press enter when ready", width/2, height/2 - 20);
+    
+    text(userInput, width/2, height/2 + 20);
+    query = userInput;
+    cam.endHUD();
+  }
+  if (!enableAPIQuery) {
+    cam.beginHUD();
+    backgroundAPI = new UnsplashImage(query);
+    if (backgroundAPI.getBackground().exists){
+      backgroundImage = backgroundAPI.getBackground().image;
+      image(backgroundImage, 0, 0, width, height);
+    }
+    cam.endHUD();
+  }
+ 
+  if (isDrawing && !enableAPIQuery) {
     cam.beginHUD();
     drawGlowingCircle();
     stroke(10);
@@ -92,7 +119,7 @@ void draw() {
       println(coords.size());
     }
     cam.endHUD();
-  } else if (coords.size() >= 20) {
+  } else if (!isDrawing && !enableAPIQuery && (coords.size() >= 20)) {
     println(amp);
     float ampNormalised = amp.analyze();
     println(ampNormalised);
@@ -292,11 +319,22 @@ void keyPressed() {
   if (key == ' ') {
     isDrawing = !isDrawing;
   }
-  // Toggle pause with the 'p' key
-  if (key == 'p') {
+  // Toggle pause with the 'P' key
+  if (key == 'P') {
     isPaused = !isPaused;
   }
   if (key == TAB) {
     tab = (tab + 1) % 3;  // Cycle between 0, 1, and 2 for the 3 colours so far
+  }
+  if (enableAPIQuery){
+    //Check if the key pressed is Enter
+    userInput += key;
+    if (key == ENTER) {
+      // Print the user input to the terminal
+      println("User input: " + userInput);
+      // Clear the user input for the next entry
+      userInput = "";
+      enableAPIQuery = false;
+    }
   }
 }

@@ -9,7 +9,7 @@ float ampWeight = 1.0; // Weight for amplitude
 float pitchWeight = 1.0; // Weight for pitch
 
 float minPitch = 0.01;
-float maxPitch = 0.02; 
+float maxPitch = 0.02;
 
 Minim minim;
 Amplitude amp;
@@ -35,7 +35,7 @@ float boxWidth = 90;
 float boxHeight = 27;
 float boxDepth = 30;
 float speedCar1;
-float speedCar2; 
+float speedCar2;
 int tab;
 
 color[] colours = new color[3];
@@ -53,13 +53,13 @@ void setup() {
   liveries[0] = loadImage("../data/ferrari55.png");
   liveries[1] = loadImage("../data/aston-martin.png");
   liveries[2] = loadImage("../data/mclaren81.png");
-  
+
   cam = new PeasyCam(this, width/2, height/2, 0, 1000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(500);
   camPosition = new PVector(width, height, 0);
   textureMode(NORMAL);
-  
+
   Sound.list();
   Sound s = new Sound(this);
   s.inputDevice(3);
@@ -71,7 +71,6 @@ void setup() {
   fft = new FFT(this, bands);
   in = new AudioIn(this, 0);
   fft.input(in);
-
 }
 
 void draw() {
@@ -89,11 +88,11 @@ void draw() {
       // Displaying the circuit design if the user is near the starting coordinates
       if (distance < glowSize/3) {
         isDrawing = false;
-       }
-        println(coords.size());
-     }
-     cam.endHUD();
-  }else if (coords.size() >= 20) {
+      }
+      println(coords.size());
+    }
+    cam.endHUD();
+  } else if (coords.size() >= 20) {
     println(amp);
     float ampNormalised = amp.analyze();
     println(ampNormalised);
@@ -102,12 +101,12 @@ void draw() {
     // Perform FFT on the audio input
     fft.analyze(spectrum);
     float pitchNormalised = spectrum[findPeak(spectrum)]; // Assuming findPeak returns the index of the peak
-    
+
     speedCar2 = map(pitchNormalised, minPitch, maxPitch, 0.05, 1.5) * pitchWeight; // Adjust the range as needed
-    
+
     println("Pitch Before Mapping: " + pitchNormalised);
     println("Pitch After Mapping (SpeedCar2): " + speedCar2);
-    
+
     drawPath3D();
     moveCarAlongPath(1, speedCar1);  // Pass speed for car 1
     moveCarAlongPath(2, speedCar2);  // Pass speed for car 2
@@ -117,7 +116,7 @@ void draw() {
 int findPeak(float[] spectrum) {
   // Return a specific value (e.g., -1) when the array is empty
   if (spectrum == null || spectrum.length == 0) {
-    return -1; 
+    return -1;
   }
 
   int peakIndex = 0;
@@ -136,7 +135,6 @@ void drawPath3D() {
   noFill();
   stroke(1);
   strokeWeight(20);  
-  
   beginShape();
   for (PVector point3D : coords) {
     vertex(point3D.x, point3D.y, point3D.z);
@@ -168,7 +166,7 @@ void drawCarLivery(int carNumber) {
   int currentPointIndex;
   if (carNumber == 1) {
     currentPointIndex = (int) carPositionOnPath;
-  } else{
+  } else {
     currentPointIndex = (int) carPositionOnPathCar2;
   }
   
@@ -195,6 +193,8 @@ void drawCarLivery(int carNumber) {
   popMatrix();
   if (liveries[tab]!= null) {
     texture(liveries[tab]);
+    fill(colours[tab]);
+
     // Front face
     beginShape(QUADS);
     vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
@@ -253,18 +253,18 @@ void drawCarLivery(int carNumber) {
 
 void moveCarAlongPath(int carNumber, float speed) {
   if (!isPaused) {
-  if (carNumber == 1) {
-    carPositionOnPath += speed;
-    if (carPositionOnPath >= coords.size()) {
-      carPositionOnPath = 0;
+    if (carNumber == 1) {
+      carPositionOnPath += speed;
+      if (carPositionOnPath >= coords.size()) {
+        carPositionOnPath = 0;
+      }
+    } else if (carNumber == 2) {
+      carPositionOnPathCar2 += speed;
+      if (carPositionOnPathCar2 >= coords.size()) {
+        carPositionOnPathCar2 = 0;
+      }
     }
-  } else if (carNumber == 2) {
-    carPositionOnPathCar2 += speed;
-    if (carPositionOnPathCar2 >= coords.size()) {
-      carPositionOnPathCar2 = 0;
-    }
-  }
-  drawCarLivery(carNumber);
+    drawCarLivery(carNumber);
   }
 }
 
@@ -276,7 +276,7 @@ void mouseDragged() {
   if (isDrawing) {
     PVector point3D;
     if (coords.size() % 10 == 0) {
-      if ((coords.size() != 0 || coords.size() != 1) && coords.size() -1 % 10 == 0){
+      if ((coords.size() != 0 || coords.size() != 1) && coords.size() -1 % 10 == 0) {
         previousZ = coords.get(index-1).z;
       }
       point3D = new PVector(mouseX, mouseY, random(-10, 10));

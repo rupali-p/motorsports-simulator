@@ -25,6 +25,8 @@ PImage[] liveries = new PImage[3];
 void setup() {
   size(800, 600, P3D);
   background(155);
+  noFill();
+  stroke(0);
   colours[0] = color(255, 0, 0);  // Red
   colours[1] = color(1, 119, 140);  // Aston Martin
   colours[2] = color(255, 165, 0); // Orange
@@ -36,6 +38,7 @@ void setup() {
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(500);
   camPosition = new PVector(width, height, 0);
+  textureMode(NORMAL);
 }
 
 void draw() {
@@ -56,7 +59,6 @@ void draw() {
        }
         println(coords.size());
      }
-     
      cam.endHUD();
   }else if (coords.size() >= 20) {
     //drawGlowingCircle();

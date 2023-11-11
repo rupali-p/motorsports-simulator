@@ -1,3 +1,5 @@
+//Rupali Palikhe | 13888666
+
 import peasy.*;
 import processing.sound.*;
 import ddf.minim.*;
@@ -47,6 +49,8 @@ String userInput = "";
 String query;
 boolean enableAPIQuery = true;
 
+String recordingText = "You are being recording";
+
 
 void setup() {
   size(800, 600, P3D);
@@ -83,12 +87,11 @@ void draw() {
   if (enableAPIQuery && isDrawing){
     cam.beginHUD();
     fill(0);
-    
+    String welcomeInfo = "Welcome to Rupali's motorsports simulator.\nPlease type your destination and press enter when you're ready";
     textAlign(CENTER, CENTER);
     textSize(20);
-    text("Please type your destination and press enter when ready", width/2, height/2 - 20);
-    
-    text(userInput, width/2, height/2 + 20);
+    text(welcomeInfo, width/2, height/2 - 30);
+    text("Your prefered destination: " + userInput, width/2, height/2 + 20);
     query = userInput;
     cam.endHUD();
   }
@@ -103,6 +106,7 @@ void draw() {
   }
  
   if (isDrawing && !enableAPIQuery) {
+    recordingText = "Recording your track drawing";
     cam.beginHUD();
     drawGlowingCircle();
     stroke(10);
@@ -120,6 +124,7 @@ void draw() {
     }
     cam.endHUD();
   } else if (!isDrawing && !enableAPIQuery && (coords.size() >= 20)) {
+    recordingText = "Recording of the track is complete.\nRecording your sound input now.\nAmplitude is the speed of your opposing car and pitch relates to the speed of your car.\nTab to change your car's livery. Ferrari 55 will be your opposition.";
     println(amp);
     float ampNormalised = amp.analyze();
     println(ampNormalised);
@@ -138,6 +143,12 @@ void draw() {
     moveCarAlongPath(1, speedCar1);  // Pass speed for car 1
     moveCarAlongPath(2, speedCar2);  // Pass speed for car 2
   }
+  cam.beginHUD();
+  textAlign(LEFT);
+  textSize(12);
+  fill(255, 0, 0);
+  text(recordingText, 10, 10);
+  cam.endHUD();
 }
 
 int findPeak(float[] spectrum) {
@@ -212,53 +223,37 @@ void drawCarLivery(int carNumber) {
   pushMatrix();
   translate(currentPoint.x, currentPoint.y, currentPoint.z + 20);
   rotateZ(rotationAngle); // Rotate the car based on the direction
-  fill(colours[tab]);
+  if (carNumber != 1) {
+    fill(colours[tab]);
+  }else{
+    fill(colours[0]);
+  }
   noStroke();
   pushMatrix();
-  fill(155);
-  box(boxWidth-10, boxHeight-10, boxDepth-10);
+  // the following if logic will be applied for every box, and vertex because it will not work without explicit commands
+  // the repetition is needed for it to work, otherwise I would have made it look better
+  if (carNumber != 1) {
+    fill(colours[tab]);
+  }else{
+    fill(colours[0]);
+  }
+  box(boxWidth,  boxHeight -10, boxDepth);
   popMatrix();
   if (liveries[tab]!= null) {
-    texture(liveries[tab]);
-    fill(colours[tab]);
-
-    // Front face
-    beginShape(QUADS);
-    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
-    vertex(halfWidth, -halfHeight, -halfDepth, 1, 0);
-    vertex(halfWidth, halfHeight, -halfDepth, 1, 1);
-    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
-    endShape();
-
-    // Back face
-    beginShape(QUADS);
-    vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
-    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
-    vertex(halfWidth, halfHeight, halfDepth, 1, 1);
-    vertex(-halfWidth, halfHeight, halfDepth, 0, 1);
-    endShape();
-
-    // front
-    pushMatrix();
-    beginShape(QUADS);
-    vertex(halfWidth, -halfHeight, -halfDepth, 0, 0);
-    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
-    vertex(halfWidth, halfHeight, halfDepth, 1, 1);
-    vertex(halfWidth, halfHeight, -halfDepth, 0, 1);
-    endShape();
-    popMatrix();
-
-    // back
-    beginShape(QUADS);
-    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
-    vertex(-halfWidth, -halfHeight, halfDepth, 1, 0);
-    vertex(-halfWidth, halfHeight, halfDepth, 1, 1);
-    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
-    endShape();
-   
+    if (carNumber != 1) {
+      texture(liveries[tab]);
+      fill(colours[tab]);
+    }else{
+      texture(liveries[0]);
+      fill(colours[0]);
+    }
     // outside/left side
     beginShape(QUADS);
-    texture(liveries[tab]);
+    if (carNumber != 1) {
+      texture(liveries[tab]);
+    }else{
+      texture(liveries[0]);
+    }
     vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
     vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
     vertex(halfWidth, -halfHeight, -halfDepth, 1, 1);
@@ -267,7 +262,11 @@ void drawCarLivery(int carNumber) {
 
     // inside/right side
     beginShape(QUADS);
-    texture(liveries[tab]);
+    if (carNumber != 1) {
+      texture(liveries[tab]);
+    }else{
+      texture(liveries[0]);
+    }
     vertex(-halfWidth, halfHeight, halfDepth, 0, 0);
     vertex(halfWidth, halfHeight, halfDepth, 1, 0);
     vertex(halfWidth, halfHeight, -halfDepth, 1, 1);

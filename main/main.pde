@@ -19,6 +19,7 @@ float speed;
 int tab;
 
 color[] colours = new color[3];
+PImage[] liveries = new PImage[3];
 
 
 void setup() {
@@ -27,6 +28,9 @@ void setup() {
   colours[0] = color(255, 0, 0);  // Red
   colours[1] = color(1, 119, 140);  // Aston Martin
   colours[2] = color(255, 165, 0); // Orange
+  liveries[0] = loadImage("../data/ferrari55.png");
+  liveries[1] = loadImage("../data/aston-martin.png");
+  liveries[2] = loadImage("../data/mclaren81.png");
   
   cam = new PeasyCam(this, width/2, height/2, 0, 1000);
   cam.setMinimumDistance(50);
@@ -55,7 +59,7 @@ void draw() {
      
      cam.endHUD();
   }else if (coords.size() >= 20) {
-    drawGlowingCircle();
+    //drawGlowingCircle();
     drawPath3D();
     moveCarAlongPath();
   }
@@ -70,7 +74,7 @@ void drawPath3D() {
   for (PVector point3D : coords) {
     vertex(point3D.x, point3D.y, point3D.z);
   }
-  endShape();
+  endShape(CLOSE);
   beginShape();
   for (PVector point3D : coords) {
     vertex(point3D.x - 20, point3D.y, point3D.z);
@@ -99,10 +103,11 @@ void drawCarLivery() {
   PVector targetPoint = coords.get((currentPointIndex + 1) % coords.size());
 
   pausedPosition = currentPoint; // Store the current position for pausing
-  speed = 0.2; 
+
   PVector direction = PVector.sub(targetPoint, currentPoint);
   float rotationAngle = atan2(direction.y, direction.x);
-
+  
+  
   int currentPointIndexCar2 = (int) carPositionOnPathCar2;
   PVector currentPointCar2 = coords.get(currentPointIndexCar2);
   PVector targetPointCar2 = coords.get((currentPointIndexCar2 + 1) % coords.size());
@@ -111,6 +116,7 @@ void drawCarLivery() {
 
   PVector directionCar2 = PVector.sub(targetPointCar2, currentPointCar2);
   float rotationAngleCar2 = atan2(directionCar2.y, directionCar2.x);
+
 
   float halfWidth = boxWidth / 2.0;
   float halfHeight = boxHeight / 2.0;
@@ -121,31 +127,18 @@ void drawCarLivery() {
   rotateZ(rotationAngle); // Rotate the car based on the direction
   fill(colours[tab]);
   noStroke();
-
-  // Draw the car body
-  drawCarBody();
-
-  popMatrix();
-
   pushMatrix();
-  translate(currentPointCar2.x, currentPointCar2.y, currentPointCar2.z + 20);
-  rotateZ(rotationAngleCar2); // Rotate the second car based on the direction
-  fill(colours[tab]);
-  noStroke();
+  //fill(colours[tab]);
+  fill(155);
+  box(boxWidth-10, boxHeight-10, boxDepth-10);
   popMatrix();
-}
-
-void drawCarBody() {
-  float halfWidth = boxWidth / 2.0;
-  float halfHeight = boxHeight / 2.0;
-  float halfDepth = boxDepth / 2.0;
-
-  if (colours != null) {
-    fill(colours[tab]);
+  //PImage currentLivery = liveries[tab];
+  if (liveries[tab]!= null) {
+    texture(liveries[tab]);
+    //fill(colours[tab]);
 
     // Front face
     beginShape(QUADS);
-    //textureWrap(REPEAT);
     vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
     vertex(halfWidth, -halfHeight, -halfDepth, 1, 0);
     vertex(halfWidth, halfHeight, -halfDepth, 1, 1);
@@ -154,30 +147,122 @@ void drawCarBody() {
 
     // Back face
     beginShape(QUADS);
-    //textureWrap(REPEAT);
     vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
     vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
     vertex(halfWidth, halfHeight, halfDepth, 1, 1);
     vertex(-halfWidth, halfHeight, halfDepth, 0, 1);
     endShape();
 
-    // Side faces
+    // front
+    pushMatrix();
     beginShape(QUADS);
-    //textureWrap(REPEAT);
+    vertex(halfWidth, -halfHeight, -halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, halfHeight, halfDepth, 1, 1);
+    vertex(halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
+    popMatrix();
+
+    // back
+    beginShape(QUADS);
     vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
-    vertex(halfWidth, -halfHeight, -halfDepth, 1, 0);
-    vertex(halfWidth, -halfHeight, halfDepth, 1, 1);
-    vertex(-halfWidth, -halfHeight, halfDepth, 0, 1);
+    vertex(-halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(-halfWidth, halfHeight, halfDepth, 1, 1);
+    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
     endShape();
 
+   
+    // outside/left side
     beginShape(QUADS);
-    //textureWrap(REPEAT);
-    vertex(-halfWidth, halfHeight, -halfDepth, 0, 0);
-    vertex(halfWidth, halfHeight, -halfDepth, 1, 0);
+    texture(liveries[tab]);
+    vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, -halfHeight, -halfDepth, 1, 1);
+    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 1);
+    endShape();
+
+    // inside/right side
+    beginShape(QUADS);
+    texture(liveries[tab]);
+    vertex(-halfWidth, halfHeight, halfDepth, 0, 0);
+    vertex(halfWidth, halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, halfHeight, -halfDepth, 1, 1);
+    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
+  }
+
+  popMatrix();
+  
+  pushMatrix();
+  translate(currentPointCar2.x, currentPointCar2.y , currentPointCar2.z + 20);
+  rotateZ(rotationAngleCar2); // Rotate the car based on the direction
+  //fill(colours[tab]);
+  noStroke();
+  pushMatrix();
+  //fill(colours[tab]);
+  fill(155);
+  box(boxWidth-10, boxHeight-10, boxDepth-10);
+  popMatrix();
+  //PImage currentLivery = liveries[tab];
+  if (liveries[tab]!= null) {
+    texture(liveries[tab]);
+    fill(colours[tab]);
+
+    // Front face
+    beginShape(QUADS);
+    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, -halfDepth, 1, 0);
+    vertex(halfWidth, halfHeight, -halfDepth, 1, 1);
+    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
+
+    // Back face
+    beginShape(QUADS);
+    vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
     vertex(halfWidth, halfHeight, halfDepth, 1, 1);
     vertex(-halfWidth, halfHeight, halfDepth, 0, 1);
     endShape();
+
+    // front
+    pushMatrix();
+    beginShape(QUADS);
+    vertex(halfWidth, -halfHeight, -halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, halfHeight, halfDepth, 1, 1);
+    vertex(halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
+    popMatrix();
+
+    // back
+    beginShape(QUADS);
+    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 0);
+    vertex(-halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(-halfWidth, halfHeight, halfDepth, 1, 1);
+    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
+
+   
+    // outside/left side
+    beginShape(QUADS);
+    texture(liveries[tab]);
+    vertex(-halfWidth, -halfHeight, halfDepth, 0, 0);
+    vertex(halfWidth, -halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, -halfHeight, -halfDepth, 1, 1);
+    vertex(-halfWidth, -halfHeight, -halfDepth, 0, 1);
+    endShape();
+
+    // inside/right side
+    beginShape(QUADS);
+    texture(liveries[tab]);
+    vertex(-halfWidth, halfHeight, halfDepth, 0, 0);
+    vertex(halfWidth, halfHeight, halfDepth, 1, 0);
+    vertex(halfWidth, halfHeight, -halfDepth, 1, 1);
+    vertex(-halfWidth, halfHeight, -halfDepth, 0, 1);
+    endShape();
   }
+
+  popMatrix();
 }
 
 void moveCarAlongPath() {
@@ -215,5 +300,19 @@ void mouseDragged() {
     }
     coords.add(point3D);
     index++;
+  }
+}
+
+void keyPressed() {
+  if (key == ' ') {
+    isDrawing = !isDrawing;
+  }
+  // Toggle pause with the 'p' key
+  if (key == 'p') {
+    isPaused = !isPaused;
+  }
+  
+  if (key == TAB) {
+    tab = (tab + 1) % 3;  // Cycle between 0, 1, and 2 for the 3 colours so far
   }
 }
